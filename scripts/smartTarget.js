@@ -58,33 +58,41 @@ class SmartTarget {
     }
   }
 
+  // Returns the RegionDocument containing the point, or null. Overlapping
+  // regions resolve to the smallest-area region (analog of the old
+  // closest-template rule; picks the most specific region when nested).
+  static _regionAtPoint(point) {
+    let area = Infinity;
+    let hitRegion = null;
+    for (const region of canvas.scene.regions) {
+      const inRegion = region.testPoint({
+        x: point.x,
+        y: point.y,
+        elevation: region.elevation.bottom,
+      });
+      if (inRegion && region.area < area) {
+        area = region.area;
+        hitRegion = region;
+      }
+    }
+    return hitRegion;
+  }
+
   static canvasOnClickLeft(wrapped, ...args) {
     const canvasMousePos = args[0].interactionData.origin;
-    if (
-      game.smartTarget.altModifier &&
-      !canvas.tokens.hover &&
-      game.settings.get(SMARTTARGET_MODULE_NAME, "templateTargeting")
-    ) {
-      let distance = Infinity;
-      let closestTemplate = null;
-      for (let template of canvas.templates.placeables) {
-        if (!template.owner) continue;
-        const inTemplate = template.shape.contains(
-          canvasMousePos.x - template.x,
-          canvasMousePos.y - template.y
-        );
-        const d = Math.sqrt(
-          Math.pow(template.x - canvasMousePos.x, 2) +
-            Math.pow(template.y - canvasMousePos.y, 2)
-        );
-        if (inTemplate && d < distance) {
-          distance = d;
-          closestTemplate = template;
-        }
-      }
-      if (closestTemplate) {
+    const regionFeatures = game.settings.get(
+      SMARTTARGET_MODULE_NAME,
+      "regionTargeting"
+    );
+
+    // Targeting Modifier (default Alt) + Click inside a Scene Region:
+    // toggle-target every token in it (port of the template targeting;
+    // Shift still inverts the release behaviour).
+    if (game.smartTarget.altModifier && !canvas.tokens.hover && regionFeatures) {
+      const hitRegion = SmartTarget._regionAtPoint(canvasMousePos);
+      if (hitRegion) {
         const release = game.keyboard.isModifierActive(
-          KeyboardManager.MODIFIER_KEYS.SHIFT
+          foundry.helpers.interaction.KeyboardManager.MODIFIER_KEYS.SHIFT
         )
           ? !SmartTarget.settings().release
           : SmartTarget.settings().release;
@@ -92,18 +100,44 @@ class SmartTarget {
           canvas.tokens.placeables[0]?.setTarget(false, {
             releaseOthers: true,
           });
-        for (let token of canvas.tokens.placeables) {
-          if (
-            closestTemplate.shape.contains(
-              token.center.x - closestTemplate.x,
-              token.center.y - closestTemplate.y
-            )
-          ) {
-            token.setTarget(!token.isTargeted, { releaseOthers: false });
-          }
+        for (const tokenDoc of hitRegion.tokens) {
+          const token = tokenDoc.object;
+          if (!token) continue;
+          if (tokenDoc.hidden && !game.user.isGM) continue;
+          token.setTarget(!token.isTargeted, { releaseOthers: false });
         }
       }
+      return wrapped(...args);
     }
+
+    // Select Modifier (default Shift) + Click inside a Scene Region:
+    // toggle-select every owned token in it, mirroring the targeting
+    // behaviour above. On v14 targeting is a pure per-token toggle (its
+    // pre-clear is a near-no-op: setTarget(false) maps to setTargets
+    // mode "release", which ignores releaseOthers), so selection does
+    // the same: no pre-clear, pure toggle. A second click on an
+    // all-selected region therefore deselects them all.
+    // Core's click handler runs first so its release-on-click logic
+    // cannot wipe the selection state we are about to toggle.
+    if (
+      game.smartTarget.selectModifier &&
+      !canvas.tokens.hover &&
+      regionFeatures
+    ) {
+      const hitRegion = SmartTarget._regionAtPoint(canvasMousePos);
+      if (hitRegion) {
+        const result = wrapped(...args);
+        for (const tokenDoc of hitRegion.tokens) {
+          const token = tokenDoc.object;
+          if (!token?.isOwner) continue;
+          if (token.controlled) token.release();
+          else token.control({ releaseOthers: false });
+        }
+        return result;
+      }
+      return wrapped(...args);
+    }
+
     return wrapped(...args);
   }
 

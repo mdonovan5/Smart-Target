@@ -3,6 +3,7 @@ const SMARTTARGET_MODULE_NAME = "smarttarget";
 Hooks.on("init", () => {
   game.smartTarget = {
     altModifier : false,
+    selectModifier : false,
   };
   game.settings.register(SMARTTARGET_MODULE_NAME, "targetingMode", {
     name: game.i18n.localize("smarttarget.settings.targetingMode.name"),
@@ -31,9 +32,9 @@ Hooks.on("init", () => {
 		}
   });
   
-  game.settings.register(SMARTTARGET_MODULE_NAME, "templateTargeting", {
-    name: game.i18n.localize("smarttarget.settings.templateTargeting.name"),
-    hint: game.i18n.localize("smarttarget.settings.templateTargeting.hint"),
+  game.settings.register(SMARTTARGET_MODULE_NAME, "regionTargeting", {
+    name: game.i18n.localize("smarttarget.settings.regionTargeting.name"),
+    hint: game.i18n.localize("smarttarget.settings.regionTargeting.hint"),
     scope: "world",
     config: true,
     default: true,
@@ -247,6 +248,16 @@ Hooks.on("init", () => {
     ],
     onDown: () => {game.smartTarget.altModifier = true;},
     onUp: () => {game.smartTarget.altModifier = false;},
+});
+
+game.keybindings.register(SMARTTARGET_MODULE_NAME, "selectKey", {
+  name: game.i18n.localize("smarttarget.keybindings.selectkey"),
+  editable: [
+    {key: "ShiftLeft"},
+    {key: "ShiftRight"},
+  ],
+  onDown: () => {game.smartTarget.selectModifier = true;},
+  onUp: () => {game.smartTarget.selectModifier = false;},
 });
 
 game.keybindings.register(SMARTTARGET_MODULE_NAME, "clearAllTargets", {
