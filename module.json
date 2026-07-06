@@ -1,7 +1,7 @@
 {
   "title": "Smart Target",
   "description": "Enhancements for the targeting feature",
-  "version": "0.5.1",
+  "version": "4.99.0",
   "authors": [
     {
       "name": "theripper93",
@@ -21,12 +21,10 @@
     "scripts/smartTarget.js",
     "scripts/helpers.js"
   ],
-  "url": "https://github.com/theripper93/Smart-Target",
-  "manifest": "https://github.com/theripper93/Smart-Target/releases/latest/download/module.json",
-  "download": "https://github.com/theripper93/Smart-Target/releases/latest/download/module.zip",
-  "readme": "https://raw.githubusercontent.com/theripper93/Smart-Target/main/README.md",
-  "changelog": "https://raw.githubusercontent.com/theripper93/Smart-Target/master/changelog.md",
-  "bugs": "https://github.com/theripper93/Smart-Target/issues",
+  "url": "https://github.com/mdonovan5/Smart-Target",
+  "readme": "https://raw.githubusercontent.com/mdonovan5/Smart-Target/main/README.md",
+  "changelog": "https://raw.githubusercontent.com/mdonovan5/Smart-Target/master/changelog.md",
+  "bugs": "https://github.com/mdonovan5/Smart-Target/issues",
   "id": "smarttarget",
   "relationships": {
     "requires": [
