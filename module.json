@@ -1,7 +1,7 @@
 {
   "title": "Smart Target",
   "description": "Enhancements for the targeting feature",
-  "version": "4.99.3",
+  "version": "4.99.4",
   "authors": [
     {
       "name": "theripper93",
@@ -22,6 +22,8 @@
     "scripts/helpers.js"
   ],
   "url": "https://github.com/mdonovan5/Smart-Target",
+  "manifest": "https://raw.githubusercontent.com/mdonovan5/Smart-Target/main/module.json",
+  "download": "https://github.com/mdonovan5/Smart-Target/archive/main.zip",
   "readme": "https://raw.githubusercontent.com/mdonovan5/Smart-Target/main/README.md",
   "changelog": "https://raw.githubusercontent.com/mdonovan5/Smart-Target/master/changelog.md",
   "bugs": "https://github.com/mdonovan5/Smart-Target/issues",
